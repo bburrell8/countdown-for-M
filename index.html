@@ -3,42 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>M’s Countdown 🏡</title>
+  <title>M's Countdown</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
+      background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #2f2f2f;
       padding: 2em;
-      background: #fff8f0;
+      margin: 0;
+    }
+    .overlay {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2em;
+      border-radius: 16px;
+      max-width: 600px;
+      margin: 2em auto;
     }
     h1 {
-      font-size: 2.2em;
-      margin-bottom: 0.5em;
+      margin-top: 0;
     }
     .countdown {
-      font-size: 1.8em;
-      color: #c47a5a;
+      font-size: 1.5em;
+      color: #aa5a44;
+    }
+    .affirmation {
+      font-size: 1.2em;
+      margin: 1em 0;
+      font-style: italic;
+    }
+    .tasks {
+      text-align: left;
+      margin-top: 1em;
+    }
+    .task-item {
+      margin: 0.5em 0;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.2);
+      margin-right: 10px;
+    }
+    .final-message {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-top: 2em;
+      color: #397b5d;
     }
   </style>
 </head>
 <body>
-  <h1>Hey Morgan! Your new beginning is near ✨</h1>
-  <div class="countdown" id="countdown"></div>
+  <div class="overlay">
+    <h1>Hey Morgan! Your new beginning is near ✨</h1>
+    <div class="countdown" id="countdown"></div>
+    <div class="affirmation" id="affirmation"></div>
+    <div class="tasks" id="tasks"></div>
+    <div class="final-message" id="finalMessage"></div>
+  </div>
 
   <script>
-    const moveInDate = new Date("2025-08-22T00:00:00");
+    const moveInDate = new Date("2025-08-22");
+    const today = new Date().toISOString().split('T')[0];
     const countdownEl = document.getElementById("countdown");
+    const affirmationEl = document.getElementById("affirmation");
+    const tasksEl = document.getElementById("tasks");
+    const finalEl = document.getElementById("finalMessage");
+
+    const affirmations = {
+      "2025-08-13": "This journey is yours. Every small step today is a bold move toward your independence.",
+      "2025-08-14": "You are creating a space that reflects your peace, your power, and your personality.",
+      "2025-08-15": "One week left. Breathe deep—you’re doing something brave and beautiful.",
+      "2025-08-16": "Everything you need is already within you. Keep going, one box at a time.",
+      "2025-08-17": "You're not just moving into a place—you're stepping into your power.",
+      "2025-08-18": "Let excitement rise louder than fear. You’ve got this, M.",
+      "2025-08-19": "Your peace is on the other side of this transition. Stay focused.",
+      "2025-08-20": "You are building a home that feels like freedom.",
+      "2025-08-21": "Tomorrow changes everything. Rest well—you’ve earned this new chapter."
+    };
+
+    const tasks = {
+      "2025-08-13": ["Drop off donation items", "Label kitchen boxes", "Send change-of-address email"],
+      "2025-08-14": ["Call Wi-Fi provider", "Pack up bathroom", "Prep grocery list for move-in"],
+      "2025-08-15": ["Pack seasonal clothes", "Clean out fridge", "Charge all devices"],
+      "2025-08-16": ["Sort important documents", "Buy trash bags & paper towels", "Pack jewelry & keepsakes"],
+      "2025-08-17": ["Confirm move time with helpers", "Defrost freezer", "Pack electronics"],
+      "2025-08-18": ["Pack bedding", "Create move-in playlist", "Prep a bag for the first night"],
+      "2025-08-19": ["Sweep & mop rooms", "Pack last-minute kitchen stuff", "Trash final bags"],
+      "2025-08-20": ["Restock snacks/water", "Pick up keys (if needed)", "Final check with landlord"],
+      "2025-08-21": ["Pack car", "Do one last walk-through", "Set alarm early for tomorrow"]
+    };
 
     function updateCountdown() {
       const now = new Date();
       const diff = moveInDate - now;
       const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-      countdownEl.innerText = days > 0 
-        ? `${days} day${days !== 1 ? 's' : ''} until move-in day!`
-        : '🎉 You did it! Welcome home, M 🏡';
+      if (days > 0) {
+        countdownEl.innerText = `${days} day${days !== 1 ? 's' : ''} until move-in day!`;
+      } else {
+        countdownEl.innerText = "";
+        finalEl.innerText = "✨ You did it, M! Welcome home. This space is all yours. Your peace, your rules, your joy. 🏡";
+      }
+    }
+
+    function showAffirmation() {
+      if (affirmations[today]) {
+        affirmationEl.innerText = affirmations[today];
+      }
+    }
+
+    function showTasks() {
+      const todayTasks = tasks[today];
+      if (!todayTasks) return;
+
+      todayTasks.forEach((task, index) => {
+        const div = document.createElement("div");
+        div.className = "task-item";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `task-${index}`;
+        checkbox.checked = localStorage.getItem(`${today}-task-${index}`) === "true";
+
+        checkbox.addEventListener("change", () => {
+          localStorage.setItem(`${today}-task-${index}`, checkbox.checked);
+        });
+
+        const label = document.createElement("label");
+        label.setAttribute("for", `task-${index}`);
+        label.innerText = task;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        tasksEl.appendChild(div);
+      });
     }
 
     updateCountdown();
+    showAffirmation();
+    showTasks();
   </script>
 </body>
 </html>
