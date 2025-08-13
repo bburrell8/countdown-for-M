@@ -63,7 +63,8 @@
 
   <script>
     const moveInDate = new Date("2025-08-22");
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayISO = today.toISOString().split('T')[0];
     const countdownEl = document.getElementById("countdown");
     const affirmationEl = document.getElementById("affirmation");
     const tasksEl = document.getElementById("tasks");
@@ -106,30 +107,51 @@
     }
 
     function showAffirmation() {
-      if (affirmations[today]) {
-        affirmationEl.innerText = affirmations[today];
+      if (affirmations[todayISO]) {
+        affirmationEl.innerText = affirmations[todayISO];
       }
     }
 
     function showTasks() {
-      const todayTasks = tasks[today];
-      if (!todayTasks) return;
+      const allDates = Object.keys(tasks).filter(date => date <= todayISO);
 
-      todayTasks.forEach((task, index) => {
+      const incompleteTasks = [];
+
+      allDates.forEach(date => {
+        tasks[date].forEach(task => {
+          const taskId = `${date}-${task}`;
+          const isComplete = localStorage.getItem(taskId) === "true";
+          if (!isComplete) {
+            incompleteTasks.push({ date, task, id: taskId });
+          }
+        });
+      });
+
+      if (incompleteTasks.length === 0) {
+        tasksEl.innerHTML = "<p>All tasks complete! You’re crushing it. 💪🏾</p>";
+        return;
+      }
+
+      incompleteTasks.forEach((item, index) => {
         const div = document.createElement("div");
         div.className = "task-item";
+
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        checkbox.id = `task-${index}`;
-        checkbox.checked = localStorage.getItem(`${today}-task-${index}`) === "true";
+        checkbox.id = item.id;
+        checkbox.checked = false;
 
         checkbox.addEventListener("change", () => {
-          localStorage.setItem(`${today}-task-${index}`, checkbox.checked);
+          localStorage.setItem(item.id, checkbox.checked);
+          div.remove(); // Immediately remove when checked
+          if (tasksEl.children.length === 0) {
+            tasksEl.innerHTML = "<p>All tasks complete! You’re crushing it. 💪🏾</p>";
+          }
         });
 
         const label = document.createElement("label");
-        label.setAttribute("for", `task-${index}`);
-        label.innerText = task;
+        label.setAttribute("for", item.id);
+        label.innerText = `(${item.date}) ${item.task}`;
 
         div.appendChild(checkbox);
         div.appendChild(label);
