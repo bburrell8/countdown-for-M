@@ -151,7 +151,7 @@
 
         const label = document.createElement("label");
         label.setAttribute("for", item.id);
-        label.innerText = `(${item.date}) ${item.task}`;
+        label.innerText = item.task;
 
         div.appendChild(checkbox);
         div.appendChild(label);
